@@ -1,36 +1,39 @@
-public final class Book {                            // ①
-    private final String title;                      // ②
-    private final List<String> authors;
-
+public final class Book {              // ① ห้ามทำสมุดเล่มพิเศษที่ลบได้ (final class)
+    private final String title;        // ② ชื่อปกเปลี่ยนไม่ได้ (private final)
+    private final List<String> authors; // กระดาษรายชื่อข้างใน
     public Book(String title, List<String> authors) {
-        if (title==null || title.isEmpty()) throw new IllegalArgumentException();
-        if (authors==null || authors.isEmpty()) throw new IllegalArgumentException();
-        for (String a : authors)
-            if (a==null || a.isEmpty()) throw new IllegalArgumentException();
+        // ตรวจก่อนรับ
+        if (title == null || title.isEmpty()) throw new IllegalArgumentException();
+        if (authors == null) throw new IllegalArgumentException();
         this.title = title;
-        this.authors = new ArrayList<>(authors);     // ⑤ ขาเข้า
-        checkRep();
+        // ⑤ ลอกรายชื่อเข้าสมุดตัวเอง ห้ามเย็บกระดาษเพื่อน (copy ขาเข้า)
+        //    ผิด: this.authors = authors;
+        this.authors = new ArrayList<>(authors);
     }
-
+    // ③ ไม่มียางลบ (ไม่มี setter)
     public List<String> authors() {
-        return new ArrayList<>(this.authors);        // ⑥ ขาออก
+        // ⑥ เพื่อนขอดู → ถ่ายเอกสารให้ ห้ามยื่นสมุดจริง (copy ขาออก)
+        //    ผิด: return authors;
+        return new ArrayList<>(this.authors);
     }
-
-    // ③ ไม่มี setter
-    public Book withAuthor(String a) {               // ④ producer
-        if (a==null || a.isEmpty()) throw new IllegalArgumentException();
+    // ④ อยากเพิ่มชื่อ → ถ่ายเล่มใหม่ เล่มเดิมห้ามขยับ (producer)
+    public Book withAuthor(String a) {
         List<String> next = new ArrayList<>(this.authors);
         next.add(a);
-        return new Book(this.title, next);
+        return new Book(this.title, next);  // เล่มใหม่
     }
-
-    @Override public boolean equals(Object o) {
-        if (this == o) return true;
+    // สองเล่มคนละเล่ม แต่ชื่อเรื่อง+รายชื่อเหมือน = เท่ากัน
+    @Override
+    public boolean equals(Object o) {       // ต้องเป็น Object ห้าม equals(Book o)
+        if (this == o) return true;         // เป็นเล่มเดียวกันเลย
         if (!(o instanceof Book)) return false;
         Book b = (Book) o;
-        return title.equals(b.title) && authors.equals(b.authors);
+        return title.equals(b.title)
+            && authors.equals(b.authors);  // เนื้อหาเหมือนกันไหม
     }
-    @Override public int hashCode() {
-        return Objects.hash(title, authors);
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, authors); // คู่กับ equals เสมอ
     }
 }
+// กาวที่ปก (final) ≠ นิ่งทั้งเล่ม เพราะกระดาษรายชื่อยังขีดเพิ่มได้ ต้องครบ 6 ข้อ
