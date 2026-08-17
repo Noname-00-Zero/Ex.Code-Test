@@ -1,52 +1,59 @@
-public class BoundedStack {   // กล่องทึบของแม่มด (ADT)
+public class BoundedStack {              // กล่องทึบกองจาน (ADT)
+    // ของลับในกล่อง (rep)
+    private ArrayList<String> items;     // กองจาน
+    private final int capacity;          // จุได้กี่ใบ
 
-    // ของลับในกล่อง ห้ามคนนอกควาน (rep)
-    private ArrayList<String> items;   // กองลูกบอล
-    private final int capacity;        // จุได้กี่ลูก (ห้ามเกิน)
-
-    // คำแปลภาษาคน (AF) ไม่ใช่กติกา
-    // AF(items, capacity) = สแตกจุได้ capacity
-    // items.get(0)              = ก้นกอง (ลูกเข้าก่อน)
-    // items.get(items.size()-1) = ลูกบนสุด (เพิ่งใส่)
+    // คำแปล (AF)
+    // AF(items, capacity) = กองจานจุได้ capacity
+    // items.get(0)              = ก้นกอง (จานแรกที่วาง)
+    // items.get(items.size()-1) = บนสุด (เพิ่ง push)
     // ว่าง                      = กล่องว่าง
-
-    // กติกาในกล่อง (RI) ผิดแล้วกล่องพัง
-    // items != null            (กล่องห้ามหาย)
+    
+    // กติกา (RI)
+    // items != null
     // capacity > 0
-    // size <= capacity         (ห้ามเกินห้าลูก)
-    // ห้ามมี null ใน items     (ห้ามลูกเน่า)
-
-    private void checkRep() {          // แม่เดินมาตรวจหลังขยับ
+    // size <= capacity
+    // ห้ามมี null ใน items
+    private void checkRep() {            // แม่ตรวจหลังขยับ
         assert items != null;
         assert capacity > 0;
         assert items.size() <= capacity;
-        for (String s : items) assert s != null;  // มีลูกเน่าไหม
+        for (String s : items) assert s != null;
     }
-
-    // Creator = สร้างกล่องว่างจากศูนย์
+    // Creator = สร้างกล่องว่าง
     public BoundedStack(int capacity) {
         if (capacity <= 0) throw new IllegalArgumentException();
         this.capacity = capacity;
         this.items = new ArrayList<>();
-        checkRep();                    // แม่ตรวจหลังสร้าง
+        checkRep();
     }
-
-    // Mutator = กดปุ่มใส่ แก้ใบเดิม
-    public void push(String item) {    // ปุ่ม "ใส่"
-        if (item == null) throw new IllegalArgumentException(); // ลูกเน่าห้ามเข้า
-        if (isFull()) throw new IllegalStateException();        // เกินจุ
-        items.add(item);
-        checkRep();                    // แม่ตรวจหลังใส่
+    // Mutator = วางจานบนสุด
+    public void push(String item) {
+        if (item == null) throw new IllegalArgumentException();
+        if (isFull()) throw new IllegalStateException();
+        items.add(item);                 // วางบนสุด = ต่อท้ายลิสต์
+        checkRep();
     }
-
-    // Observer = ดูอย่างเดียว ห้ามขยับกอง
+    // Mutator = หยิบบนสุดออก
+    public String pop() {
+        if (isEmpty()) throw new IllegalStateException();
+        String top = items.remove(items.size() - 1);
+        checkRep();
+        return top;
+    }
+    // Observer = ดูอย่างเดียว
     public int size() { return items.size(); }
-
-    // Producer = เครื่องถ่ายเอกสาร ได้ใบใหม่ ใบเดิมห้ามขยับ
+    public boolean isEmpty() { return items.isEmpty(); }
+    public boolean isFull() { return items.size() == capacity; }
+    public String peek() {               // ดูจานบนสุด ไม่หยิบ
+        if (isEmpty()) throw new IllegalStateException();
+        return items.get(items.size() - 1);
+    }
+    // Producer = ถ่ายเอกสารกองจานใบใหม่
     public BoundedStack copy() {
-        BoundedStack other = new BoundedStack(this.capacity); // ใบใหม่
+        BoundedStack other = new BoundedStack(this.capacity);
         for (String s : this.items) other.push(s);
         checkRep();
-        return other;                  // ยื่นใบใหม่ ห้าม return this (ยื่นใบเดิม)
+        return other;                    // ห้าม return this
     }
 }
